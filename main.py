@@ -11,6 +11,7 @@ from typing import List
 
 from dotenv import load_dotenv
 import os
+# import mongo
 
 
 def main():
@@ -138,8 +139,8 @@ def get_temperature_and_humidity(pin_number: int) -> List[float]:
 def get_status(pin_number: int) -> int:
     status = GPIO.input(pin_number)
 
-    if status == True : return 1
-    elif status == False : return 0
+    if status == False : return 1
+    elif status == True : return 0
     else : raise Error("Cannot get door status",1)
          
 
