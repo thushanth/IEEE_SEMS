@@ -1,3 +1,6 @@
+'''
+    
+ '''
 import RPI.GPIO as GPIO # interface to control the raspberry pi pins
 import Adafruit_DHT as dht  #module to interact with temperature sensor
 
@@ -154,16 +157,14 @@ class Error(Exception):
     def __init__(self, message:str, code:int):
         self.message = message
         self.code = code
-        self.signal_error(code)
-        self.log_error(message)
         super().__init__(self.message)
     
-    def signal_error(self,code:int):
+    def signal_error(self):
         # switch case that controls light depending on the type of error
         pass
 
 
-    def log_error(self,message:str):
+    def log_error(self):
         date_log = str(datetime.datetime.now())
         with open("SIMS_LOG.txt", "a+") as f:
             f.write(date_log + " -- " + message + "\n")
