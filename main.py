@@ -9,6 +9,7 @@ import socket
 import fcntl
 import struct
 import asyncio
+from Error import *
 from typing import List
 
 from dotenv import load_dotenv
@@ -51,70 +52,38 @@ def get_ip_address(ifname: str) -> str:
     
     except Exception as e:
         ip_address = None
-        log_error(e.args)
     finally:
         client_socket.close()
     return ip_address
 
 
-def get_temp_and_hum(pin: int) -> List[float]:
-    pass 
-
-
-def get_temperature(pin_number: int)->float:
+def get_humidity_and_temperature(pin_number: int) -> List[float]:
     sensor_type = dht.DHT22
     time.sleep(2)
 
     #read data from the dht sensor and returns a tuple containing humidity and temperature values
-    _, temperature = dht.read_retry(sensor_type, pin_number, retries=5)
-    
-    if(temperature is None):
-        return None
+    humidity, temperature = dht.read_retry(sensor_type, pin_number, retries=5)
+
+    if (temperature is None):
+        raise Error("Cannot get humidity or temperature", 1)
+    elif (humidity is None):
+        raise Error("Cannot get humidity")
     else:
         #NEEED TO DO SOME ADJUSTEMENT 
-        return temperature
-
-
-def get_humidity(pin_number:int)->float:
-    sensor = dht.DHT22
-    time.sleep(2)
-
-    #read data from the dht sensor and returns a tuple containing humidity and temperature values
-    humidity, _ = dht.read_retry(sensor, pin_number, retries=5)
-    
-    if(humidity is None):
-        raise ValueError("Humidity value not captured")
-    else:
-        return humidity
+        return [temperature,humidity]
 
 
 
 # handling door status
-def get_backdoor_status():
-    pass
-def get_frontdoor_status():
-    pass
+def get_status(pin_number: int) -> int:
+    status = GPIO.input(pin_number)
+    if(status is None) :
+        raise Error("Cannot get backdoor status",1)
+        return None
+    else :
+        return status
+         
 
-
-# when an error occurs, light will flash to indicate that there is a problem
-def err_blink_light_control(light_pin:int, magnet_pin:int) -> None:
-    GPIO.output(light_pin, GPIO.HIGH)
-    GPIO.output(magnet_pin, GPIO.HIGH)
-    time.sleep(0.5)
-    GPIO.output(light_pin, GPIO.LOW)
-    GPIO.output(magnet_pin, GPIO.LOW)
-    time.sleep(0.5)
-
-
-def time_in_range(start: datetime, end: datetime, current: datetime) -> bool:
-    return start <= current <= end
-
-
-def log_error(message):
-    date_log = str(datetime.datetime.now())
-    with open("SIMS_LOG.txt", "a+") as f:
-        f.write(date_log + " -- " + message + "\n")
-        
             
 def clean():
     GPIO.cleanpup()
@@ -137,7 +106,6 @@ def main():
 
     GPIO.setup(temp_humidity_sensor_pin,GPIO.IN)
 
-    # NOTE: what does the pull_uip_down param do?
     GPIO.setup(front_magnet_sensor_pin,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     GPIO.setup(light_out_pin, GPIO.OUT,initial=GPIO.LOW)
@@ -145,33 +113,43 @@ def main():
 
 
     
-    payload = {}
-
-    #LOOOP
-    # load environment variables
     load_dotenv()
-
-
-    payload["frontdoor status"] = get_frontdoor_status(front_magnet_sensor_pin)
-    payload["backdoor status"] = get_backdoor_status(back_magnet_sensor_pin)
-    payload["temperature"] = get_temperature(temp_humidity_sensor_pin)
-    payload["humidity"] = get_humidity(temp_humidity_sensor_pin)
+    payload = {}
     payload["post_key"] = os.getenv("POST_KEY")
     payload["IP_eht0"] = get_ip_address() #*** maybe not
 
+
+
+## time configuration
+    start_time = datetime.datetime.now()
+
+    while True: 
+
+        payload["frontdoor status"] = get_status(front_magnet_sensor_pin)
+        payload["backdoor status"] = get_status(back_magnet_sensor_pin)
         
-    # check for error
+        temperature, humidity  = get_humidity_and_temperature(temp_humidity_sensor_pin)
+        payload["temperature"] = temperature
+        payload["humidity"] = humidity
 
-    # check if back is open and do some light games
+        #if front and back are open play with the light
+        if payload("frontdoor status")==1 and payload("back door status"):
+            pass            
 
-    # post payload to database
-    url = os.getenv("DATABASE_URL")
-    post_to_db(payload, url)
-    
-    #if the back
 
-    # delay () 
+        # update the payload every 5 min  
+        end_time = datetime.datetime.now()
+        elasped_time = end_time - start_time 
+        elapsed_minutes = elasped_time.total_seconds()/60
+        if(elapsed_minutes > 5):
+            start_time = datetime.datetime.now()
 
+            # post payload to database
+            url = os.getenv("DATABASE_URL")
+            post_to_db(payload, url)
+
+
+        # error handling        
 
 if __name__ == "__main__":
     main()
