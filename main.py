@@ -7,7 +7,6 @@ import socket
 import fcntl
 import struct
 
-from Error import *
 from typing import List
 
 from dotenv import load_dotenv
@@ -36,8 +35,9 @@ def main():
     GPIO.setup(magnet_light_pin, GPIO.OUT, initial=GPIO.HIGH)
 
 
-    
+
     load_dotenv()
+    # object to send to server
     payload = {}
     payload["post_key"] = os.getenv("POST_KEY")
     payload["IP_eht0"] = get_ip_address() #*** maybe not
@@ -49,7 +49,7 @@ def main():
 
     while True:
         try: 
-
+            # get current status of the lab and update the payload
             payload["frontdoor_status"] = get_status(front_magnet_sensor_pin)
             payload["backdoor_status"] = get_status(back_magnet_sensor_pin)
             
@@ -59,17 +59,17 @@ def main():
             payload["humidity"] = humidity
 
 
-            #if front door and back door are open
+            #if frontdoor and backdoor are open
             if payload("frontdoor_status")==1 and payload("backdoor_status")==1:
                 pass            
 
 
-            # update the payload every 5 min  
+            # send the payload to the server every 5 minutes
             end_time = datetime.datetime.now()
             elasped_time = end_time - start_time 
             elapsed_minutes = elasped_time.total_seconds()/60
-            if(elapsed_minutes > 5): 
 
+            if(elapsed_minutes > 5): 
                 # post payload to database
                 url = os.getenv("DATABASE_URL")
                 post_to_db(payload, url)
@@ -86,10 +86,10 @@ def main():
 def post_to_db(payload: object, url: str ) -> None:
     try:
         client = MongoClient(url)
-        collection = client["reports"]
-    
+        db = client["reports"]
         collection  = db["statusReports"]
         collection.insert_one(payload)
+
     except Exception as e:
         pass
     finally:
@@ -140,8 +140,7 @@ def get_temperature_and_humidity(pin_number: int) -> List[float]:
 def get_status(pin_number: int) -> int:
     status = GPIO.input(pin_number)
     if(status is None) :
-        raise Error("Cannot get backdoor status",1)
-        return None
+        raise Error("Cannot get door status",1)
     else :
         return status
          
@@ -156,16 +155,14 @@ class Error(Exception):
     def __init__(self, message:str, code:int):
         self.message = message
         self.code = code
+        self.signal_error(code)
+        self.log_error(message)
         super().__init__(self.message)
     
     def signal_error(self,code:int):
-        # switch case of code what to d and 
-        GPIO.output(light_pin, GPIO.HIGH)
-        GPIO.output(magnet_pin, GPIO.HIGH)
-        time.sleep(0.5)
-        GPIO.output(light_pin, GPIO.LOW)
-        GPIO.output(magnet_pin, GPIO.LOW)
-        time.sleep(0.5)
+        # switch case that ini
+        pass
+
 
     def log_error(self,message:str):
         date_log = str(datetime.datetime.now())
