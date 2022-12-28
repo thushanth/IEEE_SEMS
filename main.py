@@ -1,14 +1,12 @@
 import RPI.GPIO as GPIO # interface to control the raspberry pi pins
 import Adafruit_DHT as dht  #module to interact with temperature sensor
 
-
-import requests 
 import time
 import datetime
 import socket
 import fcntl
 import struct
-import asyncio
+
 from Error import *
 from typing import List
 
@@ -16,7 +14,71 @@ from dotenv import load_dotenv
 import os
 
 
+def main():
+    # pin numbers
+    light_out_pin= 4
+    magnet_light_pin = 2
+    front_magnet_sensor_pin = 27 # pin for the front door
+    back_magnet_sensor_pin = 21  # pin for the back door
+    temp_humidity_sensor_pin = 23
+    
 
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+
+    #set up for all the pins used 
+
+    GPIO.setup(temp_humidity_sensor_pin,GPIO.IN)
+
+    GPIO.setup(front_magnet_sensor_pin,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+    GPIO.setup(light_out_pin, GPIO.OUT,initial=GPIO.LOW)
+    GPIO.setup(magnet_light_pin, GPIO.OUT, initial=GPIO.HIGH)
+
+
+    
+    load_dotenv()
+    payload = {}
+    payload["post_key"] = os.getenv("POST_KEY")
+    payload["IP_eht0"] = get_ip_address() #*** maybe not
+
+
+
+## time configuration
+    start_time = datetime.datetime.now()
+
+    while True:
+        try: 
+
+            payload["frontdoor_status"] = get_status(front_magnet_sensor_pin)
+            payload["backdoor_status"] = get_status(back_magnet_sensor_pin)
+            
+            temperature, humidity  = get_temperature_and_humidity(temp_humidity_sensor_pin)
+
+            payload["temperature"] = temperature
+            payload["humidity"] = humidity
+
+
+            #if front door and back door are open
+            if payload("frontdoor_status")==1 and payload("backdoor_status")==1:
+                pass            
+
+
+            # update the payload every 5 min  
+            end_time = datetime.datetime.now()
+            elasped_time = end_time - start_time 
+            elapsed_minutes = elasped_time.total_seconds()/60
+            if(elapsed_minutes > 5): 
+
+                # post payload to database
+                url = os.getenv("DATABASE_URL")
+                post_to_db(payload, url)
+                start_time = datetime.datetime.now()
+        except:
+        # error handling        
+            pass
+        finally:
+            pass
 
 
 
@@ -57,7 +119,7 @@ def get_ip_address(ifname: str) -> str:
     return ip_address
 
 
-def get_humidity_and_temperature(pin_number: int) -> List[float]:
+def get_temperature_and_humidity(pin_number: int) -> List[float]:
     sensor_type = dht.DHT22
     time.sleep(2)
 
@@ -90,66 +152,28 @@ def clean():
 
 
 
-def main():
-    # pin numbers
-    light_out_pin= 4
-    magnet_light_pin = 2
-    front_magnet_sensor_pin = 27 # pin for the front door
-    back_magnet_sensor_pin = 21  # pin for the back door
-    temp_humidity_sensor_pin = 23
+class Error(Exception):
+    def __init__(self, message:str, code:int):
+        self.message = message
+        self.code = code
+        super().__init__(self.message)
     
+    def signal_error(self,code:int):
+        # switch case of code what to d and 
+        GPIO.output(light_pin, GPIO.HIGH)
+        GPIO.output(magnet_pin, GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(light_pin, GPIO.LOW)
+        GPIO.output(magnet_pin, GPIO.LOW)
+        time.sleep(0.5)
 
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
-
-    #set up for all the pins used 
-
-    GPIO.setup(temp_humidity_sensor_pin,GPIO.IN)
-
-    GPIO.setup(front_magnet_sensor_pin,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-    GPIO.setup(light_out_pin, GPIO.OUT,initial=GPIO.LOW)
-    GPIO.setup(magnet_light_pin, GPIO.OUT, initial=GPIO.HIGH)
-
-
-    
-    load_dotenv()
-    payload = {}
-    payload["post_key"] = os.getenv("POST_KEY")
-    payload["IP_eht0"] = get_ip_address() #*** maybe not
+    def log_error(self,message:str):
+        date_log = str(datetime.datetime.now())
+        with open("SIMS_LOG.txt", "a+") as f:
+            f.write(date_log + " -- " + message + "\n")
 
 
 
-## time configuration
-    start_time = datetime.datetime.now()
-
-    while True: 
-
-        payload["frontdoor status"] = get_status(front_magnet_sensor_pin)
-        payload["backdoor status"] = get_status(back_magnet_sensor_pin)
-        
-        temperature, humidity  = get_humidity_and_temperature(temp_humidity_sensor_pin)
-        payload["temperature"] = temperature
-        payload["humidity"] = humidity
-
-        #if front and back are open play with the light
-        if payload("frontdoor status")==1 and payload("back door status"):
-            pass            
-
-
-        # update the payload every 5 min  
-        end_time = datetime.datetime.now()
-        elasped_time = end_time - start_time 
-        elapsed_minutes = elasped_time.total_seconds()/60
-        if(elapsed_minutes > 5):
-            start_time = datetime.datetime.now()
-
-            # post payload to database
-            url = os.getenv("DATABASE_URL")
-            post_to_db(payload, url)
-
-
-        # error handling        
 
 if __name__ == "__main__":
     main()
