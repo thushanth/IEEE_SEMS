@@ -159,7 +159,7 @@ class Error(Exception):
         super().__init__(self.message)
     
     def signal_error(self,code:int):
-        # switch case that ini
+        # switch case that controls light depending on the type of error
         pass
 
 
