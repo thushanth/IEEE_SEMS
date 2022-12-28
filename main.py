@@ -42,9 +42,6 @@ def main():
     payload["post_key"] = os.getenv("POST_KEY")
     payload["IP_eht0"] = get_ip_address() #*** maybe not
 
-
-
-## time configuration
     start_time = datetime.datetime.now()
 
     while True:
@@ -73,6 +70,8 @@ def main():
                 # post payload to database
                 url = os.getenv("DATABASE_URL")
                 post_to_db(payload, url)
+                
+                #reset timer
                 start_time = datetime.datetime.now()
         except:
         # error handling        
@@ -131,7 +130,6 @@ def get_temperature_and_humidity(pin_number: int) -> List[float]:
     elif (humidity is None):
         raise Error("Cannot get humidity")
     else:
-        #NEEED TO DO SOME ADJUSTEMENT 
         return [temperature,humidity]
 
 
@@ -139,10 +137,10 @@ def get_temperature_and_humidity(pin_number: int) -> List[float]:
 # handling door status
 def get_status(pin_number: int) -> int:
     status = GPIO.input(pin_number)
-    if(status is None) :
-        raise Error("Cannot get door status",1)
-    else :
-        return status
+
+    if status == True : return 1
+    elif status == False : return 0
+    else : raise Error("Cannot get door status",1)
          
 
             
