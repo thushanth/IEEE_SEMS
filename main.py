@@ -9,6 +9,7 @@ import socket
 import fcntl
 import struct
 import asyncio
+from typing import List
 
 from dotenv import load_dotenv
 import os
@@ -18,9 +19,21 @@ import os
 
 
 
-def post_to_server(payload:object) -> int:
-    pass
+# connect to database and inser
+def post_to_db(payload: object, url: str ) -> None:
+    try:
+        client = MongoClient(url)
+        collection = client["reports"]
+    
+        collection  = db["statusReports"]
+        collection.insert_one(payload)
+    except Exception as e:
+        pass
+    finally:
+        pass
 
+    # remove oldest record from database
+    return 1
 
 def get_ip_address(ifname: str) -> str:
     try:
@@ -44,7 +57,7 @@ def get_ip_address(ifname: str) -> str:
     return ip_address
 
 
-def get_temp_and_hum(pin: int) -> [] :
+def get_temp_and_hum(pin: int) -> List[float]:
     pass 
 
 
@@ -146,16 +159,14 @@ def main():
     payload["post_key"] = os.getenv("POST_KEY")
     payload["IP_eht0"] = get_ip_address() #*** maybe not
 
-    async def inner_loop():
-        pass
-        
         
     # check for error
 
     # check if back is open and do some light games
 
     # post payload to database
-    post_to_server(payload)
+    url = os.getenv("DATABASE_URL")
+    post_to_db(payload, url)
     
     #if the back
 
