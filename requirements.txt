@@ -1,0 +1,10 @@
+pymongo==4.3.3
+RPI
+RPI.GPIO
+Adafruit_DHT==1.4.0
+pymongo==3.11
+
+
+# package may be corrupted 
+dotenv==0.0.5
+
