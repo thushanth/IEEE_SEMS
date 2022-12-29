@@ -1,5 +1,5 @@
 '''
-    
+
  '''
 import RPI.GPIO as GPIO # interface to control the raspberry pi pins
 import Adafruit_DHT as dht  #module to interact with temperature sensor
@@ -14,7 +14,7 @@ from typing import List
 
 from dotenv import load_dotenv
 import os
-# import mongo
+from pymongo import MongoClient
 
 
 def main():
