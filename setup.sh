@@ -1,7 +1,12 @@
 #!/bin/bash
 
-pip install -r requirements.txt
+# create a virtual environment
+cd ..
+python3 -m venv IEEE_SEMS
 
-# add the python-dotenv
-# add mongo client
+# activate the virtual environment 
+source IEEE_SEMS/bin/activate
+
+
+pip install -r requirements.txt
 # write the commands that will connect the pi to internet
