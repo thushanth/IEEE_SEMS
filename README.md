@@ -161,3 +161,49 @@ while True:
 ```
 
 # Ethernet
+- After wiring sudo nano /boot/config.txt
+- Remove # to uncomment dtparam=spi=on
+- Add dtoverlay=enc28j60
+- sudo reboot now
+- sudo nano /lib/systemd/system/setmac.service
+- Add the following
+
+```
+[Unit]
+Description=Set MAC address for ENC28J60 module
+Wants=network-pre.target
+Before=network-pre.target
+BindsTo=sys-subsystem-net-devices-eth0.device
+After=sys-subsystem-net-devices-eth0.device
+[Service]
+Type=oneshot
+ExecStart=/sbin/ip link set dev eth0 address b8:27:eb:00:00:01
+ExecStart=/sbin/ip link set dev eth0 up
+[Install]
+WantedBy=multi-user.target
+```
+  
+
+After saving:
+
+- sudo chmod 644 /lib/systemd/system/setmac.service
+- sudo systemctl daemon-reload
+- sudo systemctl enable setmac.service
+- Sudo reboot
+- Connect ethernet cable and use ifconfig to see its new ip address without usb
+
+```
+[https://www.raspberrypi-spy.co.uk/2020/05/adding-ethernet-to-a-pi-zero/](https://www.raspberrypi-spy.co.uk/2020/05/adding-ethernet-to-a-pi-zero/)
+```
+  
+
+Disable WIFI:
+
+- Sudo apt install rfkill
+- Sudo rfkill block wifi
+To undo sudo rfkill unblock wifi
+
+Add gateway:
+
+- Sudo route -n
+- Sudo route add default gw 192.168.2.1
