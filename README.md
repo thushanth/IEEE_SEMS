@@ -5,22 +5,22 @@ Main.py is the final script runs on startup and loops infinitely
 
 ## Objective
 
-Client
+Client:
 - Read temperature, humidity and magnetic door sensor pin state.
 - Report to led ring if back door was left open to user before locking the main lab door.
 - Post to status values to dB.
 
-Broker
-Scripts thereafter with appropriate key can access the data and build specific functions without affect SEMS device. (Fragmentation)
-	- Script written to deploy on discord for users to type and request door sensor status.
-	- Script written to deploy on IEEE Website to post lab status.
+Broker:
+- Scripts thereafter with appropriate key can access the data and build specific functions without affect SEMS device. (Fragmentation)
+- Script written to deploy on discord for users to type and request door sensor status.
+- Script written to deploy on IEEE Website to post lab status.
 
 This script depends on the following python modules:
-i. rpi.GPIO (comes with raspi) for magnetic sensor and indicator lights
-ii. requests  for REST API
-iii. time (comes with raspi) for time delays
-iv. hdc_1080 library for temperature and Humidity sensor
-v. neopixel adafruit library for led ring
+1. rpi.GPIO (comes with raspi): for magnetic sensor and indicator lights
+2. requests: for REST API
+3. time (comes with raspi): for time delays
+4. hdc_1080 library: for temperature and Humidity sensor
+5. neopixel adafruit library: for led ring
 
 ---
 
@@ -28,8 +28,11 @@ v. neopixel adafruit library for led ring
 
 ### RGB LED
 
-connected to port D18 or pin 12 on the board physically for data.
-
+| GPIO Pinout | Physical Pin | WS2812B Pinout |
+|----|----| ----|
+| N/A | PIN 2-4 | VCC |
+| D18 | PIN 12 | IN |
+| N/A | PIN 6-9 | GND |
 
 ### ENC28J60 - Ethernet
 
@@ -53,7 +56,6 @@ connected to port D18 or pin 12 on the board physically for data.
 | GPIO2 | PIN 3 | SDA |
 | GPIO3 | PIN 5 | SCL |
 
-
 ### RGB Ring 8-LED WS2812B
 
 | Gpio pinout | Physical Pin | WS2812B Pinout |
@@ -70,12 +72,13 @@ connected to port D18 or pin 12 on the board physically for data.
 | GPIO23 | PIN 16 | FD |
 | GPIO24 | PIN 18 | BD |
 
+--- 
+
+## Scripts
+
 # RGB LED Script
 
-Custom script
-
 ```
-
 import board
 import neopixel
 import time
@@ -110,13 +113,13 @@ for y in range(255, -5, -5):
 	pixels.fill((y,0,0))
 	print(y)
 	time.sleep(.1)
-
 ```
 
 # Magnetic Switch
 
-If door is closed or power is not detected, the door is considered closed 0.
-If door is open it is 1
+Note: 
+- If door is closed or power is not detected, the door is considered closed 0.
+- If door is open it is 1
 
 ```
 import time, sys
@@ -133,16 +136,18 @@ while True:
 	print(GPIO.input(in1))
 	print("Back Door:")
 	print(GPIO.input(in2))
-	time.sleep(3)
-	
+	time.sleep(3)	
 ```
 
 # Temperature and Humidity
 
+Note:
+- import to have access or locate the SDL_Pi_HDC1080 Library.
+
+Linux command to import:
+```
 git clone https://github.com/switchdoclabs/SDL_Pi_HDC1080_Python3.git 
-
-import to have access or locate the SDL_Pi_HDC1080 Library.
-
+```
 
 ```
 import sys
@@ -195,7 +200,6 @@ ExecStart=/sbin/ip link set dev eth0 up
 WantedBy=multi-user.target
 ```
   
-
 After saving:
 
 - sudo chmod 644 /lib/systemd/system/setmac.service
@@ -205,9 +209,8 @@ After saving:
 - Connect ethernet cable and use ifconfig to see its new ip address without usb
 
 ```
-[https://www.raspberrypi-spy.co.uk/2020/05/adding-ethernet-to-a-pi-zero/](https://www.raspberrypi-spy.co.uk/2020/05/adding-ethernet-to-a-pi-zero/)
+https://www.raspberrypi-spy.co.uk/2020/05/adding-ethernet-to-a-pi-zero/
 ```
-  
 
 Disable WIFI:
 
