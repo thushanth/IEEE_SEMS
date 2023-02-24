@@ -6,14 +6,14 @@ Main.py is the final script runs on startup and loops infinitely
 ## Objective
 
 Client
-Read temperature, humidity and magnetic door sensor status.
-Report to led ring if back door was left open before locking lab.
-Post to status values to dB.
+- Read temperature, humidity and magnetic door sensor pin state.
+- Report to led ring if back door was left open to user before locking the main lab door.
+- Post to status values to dB.
 
 Broker
-Scripts thereafter can access with appropriate key the data and build specific functions without affect SEMS device. (Fragmentation)
-	Script written to deploy on discord for users to type and request door sensor status.
-	Script written to deploy on IEEE Website to post lab status.
+Scripts thereafter with appropriate key can access the data and build specific functions without affect SEMS device. (Fragmentation)
+	- Script written to deploy on discord for users to type and request door sensor status.
+	- Script written to deploy on IEEE Website to post lab status.
 
 This script depends on the following python modules:
 i. rpi.GPIO (comes with raspi) for magnetic sensor and indicator lights
