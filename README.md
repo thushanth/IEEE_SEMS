@@ -22,6 +22,11 @@ This script depends on the following python modules:
 4. hdc_1080 library: for temperature and Humidity sensor
 5. neopixel adafruit library: for led ring
 
+
+## Logical System Overview Diagram
+
+![Diagram of SEMS Client Hardware and variables](project.jpg)
+
 ---
 
 # Hardware Wiring
