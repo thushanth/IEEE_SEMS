@@ -1,16 +1,28 @@
 # About the program
 
-Smart Indoor Monitoring System project (SIMS project)
-This is the final script runs on startup and loops infinitely
+Smart Environment Monitoring System (SEMS project)
+Main.py is the final script runs on startup and loops infinitely
+
+## Objective
+
+Client
+Read temperature, humidity and magnetic door sensor status.
+Report to led ring if back door was left open before locking lab.
+Post to status values to dB.
+
+Broker
+Scripts thereafter can access with appropriate key the data and build specific functions without affect SEMS device. (Fragmentation)
+	Script written to deploy on discord for users to type and request door sensor status.
+	Script written to deploy on IEEE Website to post lab status.
 
 This script depends on the following python modules:
-i. rpi.GPIO (comes with raspi)        for magnetic sensor and indicator lights
+i. rpi.GPIO (comes with raspi) for magnetic sensor and indicator lights
 ii. requests  for REST API
-ii. time (comes with raspi) for time delays
-ii. adafruit_DHT for temperature and Humidity sensor
+iii. time (comes with raspi) for time delays
+iv. hdc_1080 library for temperature and Humidity sensor
+v. neopixel adafruit library for led ring
 
-
-## Handling the concurren
+---
 
 # Hardware Wiring
 
