@@ -33,7 +33,7 @@ This script depends on the following python modules:
 
 ### RGB LED
 
-| GPIO Pinout | Physical Pin | WS2812B Pinout |
+| BCM | Physical Pin | WS2812B Pinout |
 |----|----| ----|
 | N/A | PIN 2-4 | VCC |
 | D18 | PIN 12 | IN |
@@ -41,7 +41,7 @@ This script depends on the following python modules:
 
 ### ENC28J60 - Ethernet
 
-| Gpio pinout | Physical Pin | ENC28J60 Pinout |
+| BCM | Physical Pin | ENC28J60 Pinout |
 |----|----| ----|
 | GPIO25 | PIN 22| INT |
 | GPIO9 | PIN 21 | MISO |
@@ -54,7 +54,7 @@ This script depends on the following python modules:
 
 ### HDC1080 - Temperature, Humidity
 
-| Gpio pinout | Physical Pin | HDC1080 Pinout |
+| BCM | Physical Pin | HDC1080 Pinout |
 |----|----| ----|
 | N/A | PIN 1 | 3.3V |
 | N/A | PIN 6-9 | GND |
@@ -63,7 +63,7 @@ This script depends on the following python modules:
 
 ### RGB Ring 8-LED WS2812B
 
-| Gpio pinout | Physical Pin | WS2812B Pinout |
+| BCM| Physical Pin | WS2812B Pinout |
 |----|----| ----|
 | GPIO25 | PIN 2-4 | 5V |
 | GPIO9 | PIN 12 | Data |
@@ -71,7 +71,7 @@ This script depends on the following python modules:
 
 ### Magnetic Switch
 
-| Gpio pinout | Physical Pin | Reed Pinout |
+| BCM | Physical Pin | Reed Pinout |
 |----|----| ----|
 | N/A | N/A | VCC |
 | GPIO23 | PIN 16 | FD |
