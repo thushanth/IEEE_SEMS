@@ -31,6 +31,8 @@ This script depends on the following python modules:
 
 # Hardware Wiring
 
+![Diagram of Hardware wiring](Pinout.png)
+
 ### RGB LED
 
 | BCM | Physical Pin | WS2812B Pinout |
